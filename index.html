@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Knight's Tour</title>
+</head>
+<style>
+   #container {
+      width: 200px;
+      float: left;
+      overflow: hidden;
+   }
+
+   .cell {
+      width: 23px;
+      height: 23px;
+      float: left;
+      background: #fff;
+      border: 1px solid black;
+   }
+
+   .cell.visited,
+   #visited {
+      background: red;
+   }
+
+   .cell.activeCell,
+   #active {
+      background: green;
+   }
+
+   .cell.valid,
+   #valid {
+      cursor: pointer;
+      background: blue;
+   }
+
+   #gameinfo {
+      float: left;
+      padding-left: 20px;
+   }
+
+   ul {
+      padding-left: 0px;
+      list-style: none;
+   }
+
+   #visited,
+   #valid,
+   #active {
+      display: inline-block;
+      height: 23px;
+      width: 23px;
+      border: 1px solid #000;
+   }
+
+</style>
+<body>
+   <div id="container">
+   </div>
+   <div id="gameinfo">
+      <h1>Knight's Tour</h1>
+      <div>
+         Try to visit every square once on the board!
+      </div>
+      <ul>
+         <li>
+            <div id="active"></div> Active Square
+         </li>
+         <li>
+            <div id="visited"></div> Visited Squares
+         </li>
+         <li>
+            <div id="valid"></div> Valid Squares
+         </li>
+      </ul>
+   </div>
+</body>
+<script>
+
+   var visited = [];
+   var activeCell = null;
+
+   var container = document.getElementById('container');
+
+   function moveCell() {
+      var oldValidCells = document.querySelectorAll('.valid');
+      // console.log(oldValidCells.length);
+      // console.log('line whatever', oldValidCells);
+      [].forEach.call(oldValidCells, function(el) {
+          el.classList.remove("valid");
+      });
+      for (var j = 0; j < visited.length; j++) {
+         visited[j].classList.add('visited');
+         visited[j].classList.remove('activeCell');
+      }
+
+      // Remove event listener for cell and add to the visited list
+      this.removeEventListener('click', moveCell, false);
+      visited.push(this);
+      console.log('visited cells', visited);
+
+      // Change the ActiveCell to this
+      activeCell = this;
+      this.classList.add('activeCell');
+
+      // Remove event listener for all cells
+      var cells = document.getElementsByClassName('cell');
+      for (var i = 0; i < cells.length; i++) {
+         //cells[i].classList.remove("valid");
+         cells[i].removeEventListener('click', moveCell, false);
+      }
+      console.log('active cell', activeCell);
+
+      // Get the attribute for the active cell
+      var activeCellNum = activeCell.getAttribute('data-cell');
+      var cellCoor = activeCellNum.split(' ');
+      var x = parseInt(cellCoor[0]);
+      var y = parseInt(cellCoor[1]);
+
+
+      // Get valid cell numbers and numbers and add to the list of valid cells
+      var validCellNums = [
+            [x + 2, y + 1], 
+            [x + 2, y - 1], 
+            [x - 2, y + 1], 
+            [x - 2, y - 1], 
+            [x - 1, y + 2],
+            [x + 1, y - 2],
+            [x + 1, y + 2],
+            [x - 1, y - 2]
+         ];
+      var validCells = [];
+      for (var i = 0; i < validCellNums.length; i++) {
+         var x = validCellNums[i][0];
+         var y = validCellNums[i][1];
+         if ((x >=0 && x <= 7) && (y >= 0 && y <= 7)) {
+            var validCell = document.querySelector("[data-cell='" + x + ' ' + y + "']");
+            if (!validCell.classList.contains('visited')) {
+               validCells.push(validCell);
+            }
+         }
+      }
+
+      console.log('valid cells', validCells.length, validCells);
+
+      if (validCells.length == 0 && activeCell) {
+         if (confirm("Game over! Try again?")) {
+            newGame();
+         }
+      }
+
+      // Add valid/movable cells and add event listener to them
+      for (var i = 0; i < validCells.length; i++) {
+         validCells[i].classList.add('valid');
+         validCells[i].addEventListener('click', moveCell, false);   
+      }
+   }
+
+   function newGame() {
+      var cells = document.querySelectorAll('.cell');
+      
+      [].forEach.call(cells, function(el) {
+         el.classList.remove('valid');
+         el.classList.remove('visited');
+         el.classList.remove('activeCell');
+         el.addEventListener('click', moveCell, false);
+      });
+      visited = [];
+      activeCell = null;
+   }
+
+   for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < 8; j++) {
+         var cell = document.createElement('div');
+         cell.className = 'cell';
+         cell.setAttribute('data-cell', i + " " + j);
+         cell.addEventListener('click', moveCell, false);
+         container.appendChild(cell);
+      }
+   }
+   newGame();
+
+</script>
+</html>
